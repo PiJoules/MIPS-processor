@@ -1,11 +1,10 @@
 library IEEE;
 use IEEE.std_logic_1164.all;
-use IEEE.std_logic_arith.all;
-use ieee.std_logic_unsigned.all;
+use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.STD_LOGIC_UNSIGNED.ALL;
 
 entity main is
 	port(
-		pc: in std_logic_vector(31 downto 0);
 		out_32: out std_logic_vector(31 downto 0);
 		ck: in std_logic
 	);
@@ -20,14 +19,17 @@ architecture beh of main is
 		);
 	end component;
 
+	signal four: std_logic_vector(31 downto 0):= "00000000000000000000000000000100";
+	signal pc: std_logic_vector(31 downto 0):= "00000000000000000000000000000000";
+
 	begin
 
-	IM1: instruction_memory port map(pc, ck, out_32);
+	IM: instruction_memory port map (pc, ck, out_32);
 
 	process (ck)
 		begin
 		if ck='1' and ck'event then
-			pc <= pc + 4;
+			pc <= pc + four;
 		end if;
 	end process;
 end beh;
