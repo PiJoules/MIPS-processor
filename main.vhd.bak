@@ -1,0 +1,16 @@
+library IEEE;
+use IEEE.std_logic_1164.all;
+use IEEE.std_logic_arith.all;
+use ieee.std_logic_unsigned.all;
+
+entity main is
+  port (
+    x: in std_logic;
+    y: out std_logic;
+  );
+end main;
+
+architecture beh of main is
+  begin
+  y <= x;
+end beh;
