@@ -1,7 +1,22 @@
+------------------------------------------------------
+-- Instruction Memory Block
+-- 
+-- Contains all the instructions to be run.
+-- 
+-- Memory is kept in rows of 32 bits to represent 32-bit
+-- registers.
+-- 
+-- This component initially reads from the file
+-- 'instructions.txt' and saves it into a 2d array.
+-- 
+-- This component takes in a 32-bit address and returns
+-- the instruction at that address.
+------------------------------------------------------
+
 library IEEE;
 use IEEE.std_logic_1164.all;
 use IEEE.numeric_std.all;
-use STD.textio.all; --Dont forget to include this library for file operations.
+use STD.textio.all; -- Required for freading a file
 
 entity instruction_memory is
 	port (
@@ -14,6 +29,7 @@ end instruction_memory;
 
 architecture behavioral of instruction_memory is	  
 
+    -- 128 byte instruction memory (32 rows * 4 bytes/row)
     type mem_array is array(0 to 31) of STD_LOGIC_VECTOR (31 downto 0);
     signal data_mem: mem_array := (
         "00000000000000000000000000000000", -- initialize data memory
@@ -52,7 +68,7 @@ architecture behavioral of instruction_memory is
 
     begin
 
-    -- Read process
+    -- The process for reading the instructions into memory
     process 
         file file_pointer : text;
         variable line_content : string(1 to 32);
@@ -62,14 +78,13 @@ architecture behavioral of instruction_memory is
         variable char : character:='0'; 
     
         begin
-        --Open the file read.txt from the specified location for reading(READ_MODE).
-        file_open(file_pointer,"test.txt",READ_MODE);    
-        while not endfile(file_pointer) loop --till the end of file is reached continue.
-            readline (file_pointer,line_num);  --Read the whole line from the file
-            --Read the contents of the line from  the file into a variable.
-            READ (line_num,line_content); 
-            --For each character in the line convert it to binary value.
-            --And then store it in a signal named 'bin_value'.
+        -- Open instructions.txt and only read from it
+        file_open(file_pointer, "instructions.txt", READ_MODE);
+        -- Read until the end of the file is reached  
+        while not endfile(file_pointer) loop
+            readline(file_pointer,line_num); -- Read a line from the file
+            READ(line_num,line_content); -- Turn the string into a line (looks wierd right? Thanks Obama)
+            -- Convert each character in the string to a bit and save into memory
             for j in 1 to 32 loop        
                 char := line_content(j);
                 if(char = '0') then
@@ -81,13 +96,14 @@ architecture behavioral of instruction_memory is
             i := i + 1;
         end loop;
 
-        file_close(file_pointer);  --after reading all the lines close the file.  
-        wait;
+        file_close(file_pointer); -- Close the file 
+        wait; -- ( ͡° ͜ʖ ͡°)
     end process;
 
     process(ck)
         begin
         if ck='1' and ck'event then
+            -- Since the registers are in multiples of 4 bytes, we can ignore the last two bits
             instruction <= data_mem(to_integer(unsigned(read_address(31 downto 2))));
         end if;
     end process;

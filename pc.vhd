@@ -1,3 +1,11 @@
+------------------------------------------------------
+-- Program Counter component
+--
+-- Points to address of next instruction to run and returns
+-- that address in next_address.
+------------------------------------------------------
+
+
 library IEEE;
 use IEEE.std_logic_1164.all;
 use IEEE.STD_LOGIC_UNSIGNED.ALL;
@@ -19,7 +27,7 @@ architecture beh of pc is
 	process(ck)
 		begin
 		if ck='1' and ck'event then
-			address <= address + four;
+			address <= address + four; -- could not think of a way to do something like address+"...0100"
 		end if;
 	end process;
 
