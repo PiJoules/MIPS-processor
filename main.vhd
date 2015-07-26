@@ -16,6 +16,9 @@ end main;
 
 architecture beh of main is
 
+	-- dummy vectors
+	signal dummy_vector: std_logic_vector(31 downto 0);
+
 	signal instr_address: std_logic_vector(31 downto 0); -- Address of the next instruction
 	signal instruction: std_logic_vector(31 downto 0); -- The actual instruction to run
 
@@ -40,6 +43,15 @@ architecture beh of main is
 			next_address: out std_logic_vector(31 downto 0)
 		);
 	end component;
+	component registers
+		port (
+			ck: in std_logic;
+			reg_write: in std_logic;
+			read_reg_1, read_reg_2, write_reg: in std_logic_vector(4 downto 0);
+			write_data: in std_logic_vector(31 downto 0);
+			read_data_1, read_data_2: out std_logic_vector(31 downto 0)
+		);
+	end component;
 
 	begin
 
@@ -55,5 +67,6 @@ architecture beh of main is
 
 	Prog_Count: pc port map (en, instr_address); 
 	IM: instruction_memory port map (en, instr_address, instruction);
+	REG: registers port map (en, reg_write => '0', read_reg_1 => instruction(25 downto 21), read_reg_2 => instruction(20 downto 16), write_reg => instruction(15 downto 11), write_data => dummy_vector, read_data_1 => dummy_vector, read_data_2 => dummy_vector);
 
 end beh;
