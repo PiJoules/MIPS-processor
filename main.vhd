@@ -21,8 +21,9 @@ architecture beh of main is
 
 	signal instr_address: std_logic_vector(31 downto 0); -- Address of the next instruction
 	signal instruction: std_logic_vector(31 downto 0); -- The actual instruction to run
-	signal opcode: std_logic_vector(5 downto 0);
-	signal rs, rt, rd, write_reg: std_logic_vector(4 downto 0);
+	signal opcode, funct: std_logic_vector(5 downto 0);
+	signal rs, rt, rd, shampt, write_reg: std_logic_vector(4 downto 0);
+	signal alu_control_fuct: std_logic_vector(3 downto 0);
 	signal reg_dest,jump, branch, mem_read, mem_to_reg, mem_write, alu_src, reg_write: std_logic;
 	signal alu_op: std_logic_vector(1 downto 0);
 
@@ -72,6 +73,14 @@ architecture beh of main is
 			z: out std_logic_vector(n-1 downto 0)
 		);
 	end component;
+	component alu_control
+		port (
+			ck: in std_logic;
+			funct: in std_logic_vector(5 downto 0);
+			alu_op: in std_logic_vector(1 downto 0);
+			alu_control_fuct: out std_logic_vector(3 downto 0)
+		);
+	end component;
 
 	begin
 
@@ -85,9 +94,12 @@ architecture beh of main is
 		end case;
 	end process;
 
+	opcode <= instruction(31 downto 26);
 	rs <= instruction(25 downto 21);
 	rt <= instruction(20 downto 16);
 	rd <= instruction(15 downto 11);
+	shampt <= instruction(10 downto 6);
+	funct <= instruction(5 downto 0);
 
 	Prog_Count: pc port map (en, instr_address); 
 	IM: instruction_memory port map (en, instr_address, instruction);
@@ -109,5 +121,6 @@ architecture beh of main is
 		read_data_1 => dummy_vector, 
 		read_data_2 => dummy_vector
 	);
+	ALU_CONTRL: alu_control port map (en, funct, alu_op, alu_control_fuct);
 
 end beh;
