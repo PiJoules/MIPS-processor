@@ -39,7 +39,6 @@ architecture beh of main is
 	-- Load the other components
 	component instruction_memory
 		port (
-			ck: in std_logic;
 			read_address: in STD_LOGIC_VECTOR (31 downto 0);
 			instruction: out STD_LOGIC_VECTOR (31 downto 0)
 		);
@@ -47,7 +46,7 @@ architecture beh of main is
 	component pc
 		port (
 			ck: in std_logic;
-			next_address: out std_logic_vector(31 downto 0)
+			current_address: out std_logic_vector(31 downto 0)
 		);
 	end component;
 	component registers
@@ -121,49 +120,49 @@ architecture beh of main is
 
 	Prog_Count: pc port map (en, instr_address); 
 
-	IM: instruction_memory port map (en, instr_address, instruction);
+	IM: instruction_memory port map (instr_address, instruction);
 
-	CONTOL: control port map (en, opcode, reg_dest,jump, branch, mem_read, mem_to_reg, mem_write, alu_src, reg_write, alu_op);
+	CONTROL1: control port map (en, opcode, reg_dest,jump, branch, mem_read, mem_to_reg, mem_write, alu_src, reg_write, alu_op);
 
-	-- This mux is going into Register's Write Register port; chooses between rt and rd
-	MUX1: mux generic map(5) port map (
-		x => rt, 
-		y => rd, 
-		s => reg_dest,
-		z => write_reg
-	);
+	---- This mux is going into Register's Write Register port; chooses between rt and rd
+	--MUX1: mux generic map(5) port map (
+	--	x => rt, 
+	--	y => rd, 
+	--	s => reg_dest,
+	--	z => write_reg
+	--);
 
-	REG: registers port map (
-		en,
-		reg_write => reg_write,
-		read_reg_1 => rs,
-		read_reg_2 => rt,
-		write_reg => write_reg, 
-		write_data => write_data, 
-		read_data_1 => read_data_1, 
-		read_data_2 => read_data_2
-	);
+	--REG: registers port map (
+	--	ck => en,
+	--	reg_write => reg_write,
+	--	read_reg_1 => rs,
+	--	read_reg_2 => rt,
+	--	write_reg => write_reg, 
+	--	write_data => write_data, 
+	--	read_data_1 => read_data_1, 
+	--	read_data_2 => read_data_2
+	--);
 
-	ALU_CONTRL: alu_control port map (en, funct, alu_op, alu_control_fuct);
+	--ALU_CONTRL: alu_control port map (en, funct, alu_op, alu_control_fuct);
 
-	-- This mux is going into the ALU's second input; chooses between read_data_2 and the immediate
-	SGN_EXT: sign_extend port map (immediate, extended_immediate);
+	---- This mux is going into the ALU's second input; chooses between read_data_2 and the immediate
+	--SGN_EXT: sign_extend port map (immediate, extended_immediate);
 
-	MUX2: mux generic map(32) port map (
-		x => read_data_2, 
-		y => extended_immediate, 
-		s => alu_src,
-		z => alu_in_2
-	);
+	--MUX2: mux generic map(32) port map (
+	--	x => read_data_2, 
+	--	y => extended_immediate, 
+	--	s => alu_src,
+	--	z => alu_in_2
+	--);
 
-	ALU1: alu port map (en, read_data_1, alu_in_2, alu_control_fuct, alu_zero, alu_result);
+	--ALU1: alu port map (en, read_data_1, alu_in_2, alu_control_fuct, alu_zero, alu_result);
 
-	-- This mux is going into the Register's Write Data; chooses between the alu_result and read_data from data memory
-	MUX3: mux generic map (32) port map (
-		x => alu_result, 
-		y => dummy_vector, 
-		s => mem_to_reg,
-		z => write_data
-	);
+	---- This mux is going into the Register's Write Data; chooses between the alu_result and read_data from data memory
+	--MUX3: mux generic map (32) port map (
+	--	x => alu_result, 
+	--	y => dummy_vector, 
+	--	s => mem_to_reg,
+	--	z => write_data
+	--);
 
 end beh;

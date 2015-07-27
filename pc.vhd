@@ -13,7 +13,7 @@ use IEEE.STD_LOGIC_UNSIGNED.ALL;
 entity pc is
 	port(
 		ck: in std_logic;
-		next_address: out std_logic_vector(31 downto 0)
+		current_address: out std_logic_vector(31 downto 0)
 	);
 end pc;
 
@@ -27,10 +27,9 @@ architecture beh of pc is
 	process(ck)
 		begin
 		if ck='1' and ck'event then
+			current_address <= address;
 			address <= address + four; -- could not think of a way to do something like address+"...0100"
 		end if;
 	end process;
-
-	next_address <= address;
 
 end beh;

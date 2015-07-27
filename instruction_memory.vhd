@@ -20,7 +20,6 @@ use STD.textio.all; -- Required for freading a file
 
 entity instruction_memory is
 	port (
-        ck: in std_logic;
 		read_address: in STD_LOGIC_VECTOR (31 downto 0);
 		instruction: out STD_LOGIC_VECTOR (31 downto 0)
 	);
@@ -100,12 +99,7 @@ architecture behavioral of instruction_memory is
         wait; -- ( ͡° ͜ʖ ͡°)
     end process;
 
-    process(ck)
-        begin
-        if ck='1' and ck'event then
-            -- Since the registers are in multiples of 4 bytes, we can ignore the last two bits
-            instruction <= data_mem(to_integer(unsigned(read_address(31 downto 2))));
-        end if;
-    end process;
+    -- Since the registers are in multiples of 4 bytes, we can ignore the last two bits
+    instruction <= data_mem(to_integer(unsigned(read_address(31 downto 2))));
 
 end behavioral;
