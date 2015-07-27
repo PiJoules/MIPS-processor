@@ -104,7 +104,7 @@ architecture beh of main is
 	Prog_Count: pc port map (en, instr_address); 
 	IM: instruction_memory port map (en, instr_address, instruction);
 	CONTOL: control port map (en, opcode, reg_dest,jump, branch, mem_read, mem_to_reg, mem_write, alu_src, reg_write, alu_op);
-	-- The mux going into Register's Write Register port; chooses between rt and rd
+	-- This mux is going into Register's Write Register port; chooses between rt and rd
 	MUX1: mux generic map(5) port map (
 		x => rt, 
 		y => rd, 
