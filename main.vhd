@@ -21,10 +21,12 @@ architecture beh of main is
 
 	signal instr_address: std_logic_vector(31 downto 0); -- Address of the next instruction
 	signal instruction: std_logic_vector(31 downto 0); -- The actual instruction to run
+	signal read_data_1, read_data_2, write_data, extended_immediate, alu_in_2, alu_result: std_logic_vector(31 downto 0);
+	signal immediate: std_logic_vector(15 downto 0);
 	signal opcode, funct: std_logic_vector(5 downto 0);
 	signal rs, rt, rd, shampt, write_reg: std_logic_vector(4 downto 0);
 	signal alu_control_fuct: std_logic_vector(3 downto 0);
-	signal reg_dest,jump, branch, mem_read, mem_to_reg, mem_write, alu_src, reg_write: std_logic;
+	signal reg_dest,jump, branch, mem_read, mem_to_reg, mem_write, alu_src, reg_write, alu_zero: std_logic;
 	signal alu_op: std_logic_vector(1 downto 0);
 
 	 -- Enum for checking if the instructions have loaded
@@ -81,6 +83,21 @@ architecture beh of main is
 			alu_control_fuct: out std_logic_vector(3 downto 0)
 		);
 	end component;
+	component sign_extend
+		port (
+			x: in std_logic_vector(15 downto 0);
+			y: out std_logic_vector(31 downto 0)
+		);
+	end component;
+	component alu
+		port (
+			ck: in std_logic;
+			in_1, in_2: std_logic_vector(31 downto 0);
+			alu_control_fuct: in std_logic_vector(3 downto 0);
+			zero: out std_logic;
+			alu_result: out std_logic_vector(31 downto 0)
+		);
+	end component;
 
 	begin
 
@@ -100,10 +117,14 @@ architecture beh of main is
 	rd <= instruction(15 downto 11);
 	shampt <= instruction(10 downto 6);
 	funct <= instruction(5 downto 0);
+	immediate <= instruction(15 downto 0);
 
 	Prog_Count: pc port map (en, instr_address); 
+
 	IM: instruction_memory port map (en, instr_address, instruction);
+
 	CONTOL: control port map (en, opcode, reg_dest,jump, branch, mem_read, mem_to_reg, mem_write, alu_src, reg_write, alu_op);
+
 	-- This mux is going into Register's Write Register port; chooses between rt and rd
 	MUX1: mux generic map(5) port map (
 		x => rt, 
@@ -111,16 +132,38 @@ architecture beh of main is
 		s => reg_dest,
 		z => write_reg
 	);
+
 	REG: registers port map (
 		en,
 		reg_write => reg_write,
 		read_reg_1 => rs,
 		read_reg_2 => rt,
 		write_reg => write_reg, 
-		write_data => dummy_vector, 
-		read_data_1 => dummy_vector, 
-		read_data_2 => dummy_vector
+		write_data => write_data, 
+		read_data_1 => read_data_1, 
+		read_data_2 => read_data_2
 	);
+
 	ALU_CONTRL: alu_control port map (en, funct, alu_op, alu_control_fuct);
+
+	-- This mux is going into the ALU's second input; chooses between read_data_2 and the immediate
+	SGN_EXT: sign_extend port map (immediate, extended_immediate);
+
+	MUX2: mux generic map(32) port map (
+		x => read_data_2, 
+		y => extended_immediate, 
+		s => alu_src,
+		z => alu_in_2
+	);
+
+	ALU1: alu port map (en, read_data_1, alu_in_2, alu_control_fuct, alu_zero, alu_result);
+
+	-- This mux is going into the Register's Write Data; chooses between the alu_result and read_data from data memory
+	MUX3: mux generic map (32) port map (
+		x => alu_result, 
+		y => dummy_vector, 
+		s => mem_to_reg,
+		z => write_data
+	);
 
 end beh;

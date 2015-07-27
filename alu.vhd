@@ -1,6 +1,7 @@
 library IEEE;
 use IEEE.std_logic_1164.all;
-use IEEE.numeric_std.all;
+use IEEE.std_logic_arith.all;
+use ieee.std_logic_unsigned.all;
 
 entity alu is 
 	port (
@@ -22,18 +23,23 @@ architecture beh of alu is
 	begin
 
 	process (ck)
+		begin
 		if ck='1' and ck'event then
 			case alu_control_fuct is
-				when add =>
+				when "0010" => -- add
 					alu_result <= in_1 + in_2;
-				when subtract =>
+				when "0110" => -- sub
 					alu_result <= in_1 - in_2;
-				when and_op =>
+				when "0000" => -- and
 					alu_result <= in_1 and in_2;
-				when or_op =>
+				when "0001" => -- or
 					alu_result <= in_1 or in_2;
-				when set_on_less_than =>
-					
+				when "0111" => -- set on less than
+					if in_1 < in_2 then
+						alu_result <= "00000000000000000000000000000001";
+					else
+						alu_result <= "00000000000000000000000000000000";
+					end if;
 				when others =>
 					null;
 			end case;
