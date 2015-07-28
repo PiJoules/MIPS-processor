@@ -111,8 +111,9 @@ architecture beh of main is
 				when loading =>
 					s <= running; -- give 1 cycle to load the instructions into memory
 				when running =>
-					if last_instr_address > instr_address(31 downto 3) then
+					if instr_address > last_instr_address then
 						s <= done; -- stop moving the pc after it has passed the last instruction
+						en <= '0';
 					end if;
 				when others =>
 					null;

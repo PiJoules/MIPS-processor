@@ -95,7 +95,7 @@ architecture behavioral of instruction_memory is
             i := i + 1;
         end loop;
         if i > 0 then
-            last_instr_address <= std_logic_vector(to_unsigned(i-1, last_instr_address'length));
+            last_instr_address <= std_logic_vector(to_unsigned((i-1)*4, last_instr_address'length));
         else
             last_instr_address <= "00000000000000000000000000000000";
         end if;
