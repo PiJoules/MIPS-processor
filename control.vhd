@@ -19,7 +19,6 @@ use IEEE.numeric_std.all;
 
 entity control is
 	port (
-		ck: in std_logic;
 		opcode: in std_logic_vector(5 downto 0);
 		reg_dest,jump, branch, mem_read, mem_to_reg, mem_write, alu_src, reg_write: out std_logic;
 		alu_op: out std_logic_vector(1 downto 0)

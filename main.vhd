@@ -37,21 +37,20 @@ architecture beh of main is
 	signal en: std_logic:= '0';
 
 	-- Load the other components
-	component instruction_memory
-		port (
-			read_address: in STD_LOGIC_VECTOR (31 downto 0);
-			instruction: out STD_LOGIC_VECTOR (31 downto 0)
-		);
-	end component;
 	component pc
 		port (
 			ck: in std_logic;
 			current_address: out std_logic_vector(31 downto 0)
 		);
 	end component;
+	component instruction_memory
+		port (
+			read_address: in STD_LOGIC_VECTOR (31 downto 0);
+			instruction: out STD_LOGIC_VECTOR (31 downto 0)
+		);
+	end component;
 	component registers
 		port (
-			ck: in std_logic;
 			reg_write: in std_logic;
 			read_reg_1, read_reg_2, write_reg: in std_logic_vector(4 downto 0);
 			write_data: in std_logic_vector(31 downto 0);
@@ -60,7 +59,6 @@ architecture beh of main is
 	end component;
 	component control
 		port (
-			ck: in std_logic;
 			opcode: in std_logic_vector(5 downto 0);
 			reg_dest,jump, branch, mem_read, mem_to_reg, mem_write, alu_src, reg_write: out std_logic;
 			alu_op: out std_logic_vector(1 downto 0)
@@ -122,26 +120,36 @@ architecture beh of main is
 
 	IM: instruction_memory port map (instr_address, instruction);
 
-	CONTROL1: control port map (en, opcode, reg_dest,jump, branch, mem_read, mem_to_reg, mem_write, alu_src, reg_write, alu_op);
+	CONTROL1: control port map (
+		opcode => opcode,
+		reg_dest => reg_dest, 
+		jump => jump,
+		branch => branch, 
+		mem_read => mem_read, 
+		mem_to_reg => mem_to_reg,
+		mem_write => mem_write,
+		alu_src => alu_src,
+		reg_write => reg_write,
+		alu_op => alu_op 
+	);
 
-	---- This mux is going into Register's Write Register port; chooses between rt and rd
-	--MUX1: mux generic map(5) port map (
-	--	x => rt, 
-	--	y => rd, 
-	--	s => reg_dest,
-	--	z => write_reg
-	--);
+	-- This mux is going into Register's Write Register port; chooses between rt and rd
+	MUX1: mux generic map(5) port map (
+		x => rt, 
+		y => rd, 
+		s => reg_dest,
+		z => write_reg
+	);
 
-	--REG: registers port map (
-	--	ck => en,
-	--	reg_write => reg_write,
-	--	read_reg_1 => rs,
-	--	read_reg_2 => rt,
-	--	write_reg => write_reg, 
-	--	write_data => write_data, 
-	--	read_data_1 => read_data_1, 
-	--	read_data_2 => read_data_2
-	--);
+	REG: registers port map (
+		reg_write => reg_write,
+		read_reg_1 => rs,
+		read_reg_2 => rt,
+		write_reg => write_reg, 
+		write_data => write_data, 
+		read_data_1 => read_data_1, 
+		read_data_2 => read_data_2
+	);
 
 	--ALU_CONTRL: alu_control port map (en, funct, alu_op, alu_control_fuct);
 

@@ -4,7 +4,6 @@ use IEEE.numeric_std.all;
 
 entity registers is 
 	port (
-		ck: in std_logic;
 		reg_write: in std_logic;
 		read_reg_1, read_reg_2, write_reg: in std_logic_vector(4 downto 0);
 		write_data: in std_logic_vector(31 downto 0);
@@ -53,14 +52,9 @@ architecture beh of registers is
 
 	begin
 
-	process(ck)
-		begin
-		if ck='1' and ck'event then
-			read_data_1 <= reg_mem(to_integer(unsigned(read_reg_1)));
-			read_data_2 <= reg_mem(to_integer(unsigned(read_reg_2)));
-		elsif ck='0' and ck'event and reg_write='1' then
-			reg_mem(to_integer(unsigned(write_reg))) <= write_data;
-		end if;
-	end process;
+    read_data_1 <= reg_mem(to_integer(unsigned(read_reg_1)));
+    read_data_2 <= reg_mem(to_integer(unsigned(read_reg_2)));
+
+    reg_mem(to_integer(unsigned(write_reg))) <= write_data when reg_write='1';
 
 end beh;
