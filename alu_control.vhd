@@ -16,7 +16,6 @@ use IEEE.numeric_std.all;
 
 entity alu_control is
 	port (
-		ck: in std_logic;
 		funct: in std_logic_vector(5 downto 0);
 		alu_op: in std_logic_vector(1 downto 0);
 		alu_control_fuct: out std_logic_vector(3 downto 0)
@@ -32,32 +31,11 @@ architecture beh of alu_control is
 
 	begin
 
-	process(ck)
-		begin
-		if ck='1' and ck'event then 
-			case alu_op is
-				when "00" =>
-					alu_control_fuct <= add;
-				when "01" =>
-					alu_control_fuct <= subtract;
-				when "10" =>
-					case funct is
-						when "100000" =>
-							alu_control_fuct <= add;
-						when "100010" =>
-							alu_control_fuct <= subtract;
-						when "100100" =>
-							alu_control_fuct <= and_op;
-						when "100101" =>
-							alu_control_fuct <= or_op;
-						when "101010" =>
-							alu_control_fuct <= set_on_less_than;
-						when others =>
-							null;
-					end case;
-				when others =>
-					null;
-			end case;
-		end if;
-	end process;
+	alu_control_fuct <= add when(alu_op="00" or (alu_op="10" and funct="100000")) else
+						subtract when(alu_op="01" or (alu_op="10" and funct="100010"))else
+						and_op when(alu_op="10" and funct="100100") else
+						or_op when(alu_op="10" and funct="100101") else
+						set_on_less_than when(alu_op="10" and funct="101010");
+						
+
 end beh;

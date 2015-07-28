@@ -5,7 +5,6 @@ use ieee.std_logic_unsigned.all;
 
 entity alu is 
 	port (
-		ck: in std_logic;
 		in_1, in_2: std_logic_vector(31 downto 0);
 		alu_control_fuct: in std_logic_vector(3 downto 0);
 		zero: out std_logic;
@@ -22,27 +21,13 @@ architecture beh of alu is
 
 	begin
 
-	process (ck)
-		begin
-		if ck='1' and ck'event then
-			case alu_control_fuct is
-				when "0010" => -- add
-					alu_result <= in_1 + in_2;
-				when "0110" => -- sub
-					alu_result <= in_1 - in_2;
-				when "0000" => -- and
-					alu_result <= in_1 and in_2;
-				when "0001" => -- or
-					alu_result <= in_1 or in_2;
-				when "0111" => -- set on less than
-					if in_1 < in_2 then
-						alu_result <= "00000000000000000000000000000001";
-					else
-						alu_result <= "00000000000000000000000000000000";
-					end if;
-				when others =>
-					null;
-			end case;
-		end if;
-	end process;
+	alu_result <=	in_1 + in_2 when(alu_control_fuct=add) else
+					in_1 - in_2 when(alu_control_fuct=subtract) else
+					in_1 and in_2 when(alu_control_fuct=and_op) else
+					in_1 or in_2 when(alu_control_fuct=or_op) else
+					"00000000000000000000000000000001" when(alu_control_fuct=set_on_less_than and in_1 < in_2) else
+					"00000000000000000000000000000000" when(alu_control_fuct=set_on_less_than);
+
+	zero <= '1' when(in_1=in_2) else '0';
+
 end beh;

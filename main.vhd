@@ -74,7 +74,6 @@ architecture beh of main is
 	end component;
 	component alu_control
 		port (
-			ck: in std_logic;
 			funct: in std_logic_vector(5 downto 0);
 			alu_op: in std_logic_vector(1 downto 0);
 			alu_control_fuct: out std_logic_vector(3 downto 0)
@@ -88,7 +87,6 @@ architecture beh of main is
 	end component;
 	component alu
 		port (
-			ck: in std_logic;
 			in_1, in_2: std_logic_vector(31 downto 0);
 			alu_control_fuct: in std_logic_vector(3 downto 0);
 			zero: out std_logic;
@@ -151,19 +149,19 @@ architecture beh of main is
 		read_data_2 => read_data_2
 	);
 
-	--ALU_CONTRL: alu_control port map (en, funct, alu_op, alu_control_fuct);
+	ALU_CONTRL: alu_control port map (funct, alu_op, alu_control_fuct);
 
 	---- This mux is going into the ALU's second input; chooses between read_data_2 and the immediate
-	--SGN_EXT: sign_extend port map (immediate, extended_immediate);
+	SGN_EXT: sign_extend port map (immediate, extended_immediate);
 
-	--MUX2: mux generic map(32) port map (
-	--	x => read_data_2, 
-	--	y => extended_immediate, 
-	--	s => alu_src,
-	--	z => alu_in_2
-	--);
+	MUX2: mux generic map(32) port map (
+		x => read_data_2, 
+		y => extended_immediate, 
+		s => alu_src,
+		z => alu_in_2
+	);
 
-	--ALU1: alu port map (en, read_data_1, alu_in_2, alu_control_fuct, alu_zero, alu_result);
+	ALU1: alu port map (read_data_1, alu_in_2, alu_control_fuct, alu_zero, alu_result);
 
 	---- This mux is going into the Register's Write Data; chooses between the alu_result and read_data from data memory
 	--MUX3: mux generic map (32) port map (
