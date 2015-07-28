@@ -21,7 +21,7 @@ use STD.textio.all; -- Required for freading a file
 entity instruction_memory is
 	port (
 		read_address: in STD_LOGIC_VECTOR (31 downto 0);
-		instruction: out STD_LOGIC_VECTOR (31 downto 0)
+		instruction, last_instr_address: out STD_LOGIC_VECTOR (31 downto 0)
 	);
 end instruction_memory;
 
@@ -94,6 +94,11 @@ architecture behavioral of instruction_memory is
             end loop;
             i := i + 1;
         end loop;
+        if i > 0 then
+            last_instr_address <= std_logic_vector(to_unsigned(i-1, last_instr_address'length));
+        else
+            last_instr_address <= "00000000000000000000000000000000";
+        end if;
 
         file_close(file_pointer); -- Close the file 
         wait; -- ( ͡° ͜ʖ ͡°)

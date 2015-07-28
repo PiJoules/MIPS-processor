@@ -5,11 +5,11 @@
 
 library IEEE;
 use IEEE.std_logic_1164.all;
+use IEEE.std_logic_arith.all;
 use IEEE.STD_LOGIC_UNSIGNED.ALL;
 
 entity main is
 	port(
-		out_32: out std_logic_vector(31 downto 0); -- visually displaying some output
 		ck: in std_logic
 	);
 end main;
@@ -17,20 +17,20 @@ end main;
 architecture beh of main is
 
 	-- dummy vectors
-	signal dummy_vector: std_logic_vector(31 downto 0);
+	signal dummy_vector: std_logic_vector(31 downto 0):= "00000000000000000000000000000000";
 
 	signal instr_address: std_logic_vector(31 downto 0); -- Address of the next instruction
 	signal instruction: std_logic_vector(31 downto 0); -- The actual instruction to run
-	signal read_data_1, read_data_2, write_data, extended_immediate, alu_in_2, alu_result: std_logic_vector(31 downto 0);
+	signal read_data_1, read_data_2, write_data, extended_immediate, alu_in_2, alu_result, last_instr_address: std_logic_vector(31 downto 0);
 	signal immediate: std_logic_vector(15 downto 0);
 	signal opcode, funct: std_logic_vector(5 downto 0);
 	signal rs, rt, rd, shampt, write_reg: std_logic_vector(4 downto 0);
 	signal alu_control_fuct: std_logic_vector(3 downto 0);
-	signal reg_dest,jump, branch, mem_read, mem_to_reg, mem_write, alu_src, reg_write, alu_zero: std_logic;
+	signal reg_dest,jump, branch, mem_read, mem_to_reg, mem_write, alu_src, reg_write, alu_zero: std_logic:= '0';
 	signal alu_op: std_logic_vector(1 downto 0);
 
 	 -- Enum for checking if the instructions have loaded
-	type state is (loading, ready);
+	type state is (loading, running, done);
 	signal s: state:= loading;
 
 	-- The clock for the other components; starts when the state is ready
@@ -46,11 +46,12 @@ architecture beh of main is
 	component instruction_memory
 		port (
 			read_address: in STD_LOGIC_VECTOR (31 downto 0);
-			instruction: out STD_LOGIC_VECTOR (31 downto 0)
+			instruction, last_instr_address: out STD_LOGIC_VECTOR (31 downto 0)
 		);
 	end component;
 	component registers
 		port (
+			ck: in std_logic;
 			reg_write: in std_logic;
 			read_reg_1, read_reg_2, write_reg: in std_logic_vector(4 downto 0);
 			write_data: in std_logic_vector(31 downto 0);
@@ -99,11 +100,24 @@ architecture beh of main is
 	process(ck)
 		begin
 		case s is
-			when loading =>
-				s <= ready; -- give 1 cycle to load the instructions into memory
-			when ready =>
-				en <= ck; -- ready to run the program
+			when running =>
+				en <= ck;
+			when others =>
+				en <= '0';
 		end case;
+
+		if ck='1' and ck'event then
+			case s is
+				when loading =>
+					s <= running; -- give 1 cycle to load the instructions into memory
+				when running =>
+					if last_instr_address > instr_address(31 downto 3) then
+						s <= done; -- stop moving the pc after it has passed the last instruction
+					end if;
+				when others =>
+					null;
+			end case;
+		end if;
 	end process;
 
 	opcode <= instruction(31 downto 26);
@@ -116,7 +130,7 @@ architecture beh of main is
 
 	Prog_Count: pc port map (en, instr_address); 
 
-	IM: instruction_memory port map (instr_address, instruction);
+	IM: instruction_memory port map (instr_address, instruction, last_instr_address);
 
 	CONTROL1: control port map (
 		opcode => opcode,
@@ -140,6 +154,7 @@ architecture beh of main is
 	);
 
 	REG: registers port map (
+		ck => en,
 		reg_write => reg_write,
 		read_reg_1 => rs,
 		read_reg_2 => rt,
