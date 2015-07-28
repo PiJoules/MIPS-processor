@@ -1,3 +1,14 @@
+------------------------------------------------------
+-- ALU component
+--
+-- This component takes in 2 inputs, performs one of 5 
+-- operations between them (add, subtract, and, or, 
+-- set-on-less-than), and returns the result.
+--
+-- Also returns a zero flag that is true if the 2 inputs
+-- are equal and false otherwise.
+------------------------------------------------------
+
 library IEEE;
 use IEEE.std_logic_1164.all;
 use IEEE.std_logic_arith.all;

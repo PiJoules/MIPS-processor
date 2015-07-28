@@ -1,3 +1,12 @@
+------------------------------------------------------
+-- Register Memory Block
+-- 
+-- Contains all the registers.
+-- 
+-- Memory is kept in rows of 32 bits to represent 32-bit
+-- registers.
+------------------------------------------------------
+
 library IEEE;
 use IEEE.std_logic_1164.all;
 use IEEE.numeric_std.all;
@@ -59,6 +68,7 @@ architecture beh of registers is
     process(ck)
         begin
         if ck='0' and ck'event and reg_write='1' then
+            -- write to reg. mem. when the reg_write flag is set and on a falling clock
             reg_mem(to_integer(unsigned(write_reg))) <= write_data;
         end if;
     end process;

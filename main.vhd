@@ -16,7 +16,7 @@ end main;
 
 architecture beh of main is
 
-	-- dummy vectors
+	-- dummy vector
 	signal dummy_vector: std_logic_vector(31 downto 0):= "00000000000000000000000000000000";
 
 	signal instr_address: std_logic_vector(31 downto 0); -- Address of the next instruction
@@ -121,6 +121,7 @@ architecture beh of main is
 		end if;
 	end process;
 
+	-- Wire some stuff
 	opcode <= instruction(31 downto 26);
 	rs <= instruction(25 downto 21);
 	rt <= instruction(20 downto 16);

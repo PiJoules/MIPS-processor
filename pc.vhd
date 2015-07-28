@@ -2,7 +2,7 @@
 -- Program Counter component
 --
 -- Points to address of next instruction to run and returns
--- that address in next_address.
+-- that address in current_address.
 ------------------------------------------------------
 
 

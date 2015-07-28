@@ -1,3 +1,10 @@
+------------------------------------------------------
+-- Sign Extend component
+--
+-- For all your turning-16-bit-vectors-into-32-bit-
+-- vectors needs
+------------------------------------------------------
+
 library IEEE;
 use IEEE.std_logic_1164.all;
 use IEEE.numeric_std.all;
