@@ -163,12 +163,12 @@ architecture beh of main is
 
 	ALU1: alu port map (read_data_1, alu_in_2, alu_control_fuct, alu_zero, alu_result);
 
-	---- This mux is going into the Register's Write Data; chooses between the alu_result and read_data from data memory
-	--MUX3: mux generic map (32) port map (
-	--	x => alu_result, 
-	--	y => dummy_vector, 
-	--	s => mem_to_reg,
-	--	z => write_data
-	--);
+	-- This mux is going into the Register's Write Data; chooses between the alu_result and read_data from data memory
+	MUX3: mux generic map (32) port map (
+		x => alu_result, 
+		y => dummy_vector, 
+		s => mem_to_reg,
+		z => write_data
+	);
 
 end beh;
