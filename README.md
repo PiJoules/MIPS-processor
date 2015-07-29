@@ -17,7 +17,7 @@ The first clock cycle is always dedicated to reading the code from `instructions
 | Instruction | Format | Operation | Syntax |
 |-------------|--------|-----------|--------|
 | Add | R | R[rd] = R[rs] + R[rt] | add $rd, $rs, $rt |
-| Add immediate | I | R[rd] = R[rs] + immed. | addi $rt, $rs, immed. |
+| Add immediate | I | R[rt] = R[rs] + immed. | addi $rt, $rs, immed. |
 | And | R | R[rd] = R[rs] & R[rt] | and $rd, $rs, $rt |
 | Or | R | R[rd] = R[rs] \| R[rt] | or $rd, $rs, $rt |
 | Set Less Than | R | R[rd] = (R[rs] < R[rt]) ? 1 : 0 | slt $rd, $rs, $rt |
