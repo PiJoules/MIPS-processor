@@ -27,7 +27,7 @@ architecture beh of pc is
 	process(ck)
 		begin
 		current_address <= address;
-		if ck='1' and ck'event then
+		if ck='0' and ck'event then
 			address <= address + four; -- could not think of a way to do something like address+"...0100"
 		end if;
 	end process;

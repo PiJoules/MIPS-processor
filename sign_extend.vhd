@@ -2,7 +2,7 @@
 -- Sign Extend component
 --
 -- For all your turning-16-bit-vectors-into-32-bit-
--- vectors needs
+-- vectors needs.
 ------------------------------------------------------
 
 library IEEE;
