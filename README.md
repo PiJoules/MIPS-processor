@@ -13,6 +13,15 @@ Should be able to perform various R-tpye instructions, but I have only tested it
 ## How the code runs
 The first clock cycle is always dedicated to reading the code from `instructions.txt` and saving it into the instruction memory (found in `instruction_memory.vhd`). It has nothing to do with the processor itself. This is just a preliminary action. Starting on the second clock cycle is when the program runs. Every clock cycle after the first reads an instruction from the instruction memory and increments the program counter accordingly. The program will continue to run until the pc has reached an address greater than the address of the last instruction in memory. The instruction, data, and register memory will still persist after the program ends and will only change if it is overwritten, or the simulation ends.
 
+## Suported Instructions
+| Instruction | Format | Operation | Syntax |
+|-------------|--------|-----------|--------|
+| Add | R | R[rd] = R[rs] + R[rt] | add $rd, $rs, $rt |
+| Add immediate | I | R[rd] = R[rs] + immed. | addi $rt, $rs, immed. |
+| And | R | R[rd] = R[rs] & R[rt] | and $rd, $rs, $rt |
+| Or | R | R[rd] = R[rs] | R[rt] | or $rd, $rs, $rt |
+| Set Less Than | R | R[rd] = (R[rs] < R[rt]) ? 1 : 0 | slt $rd, $rs, $rt |
+
 ## Components
 Details of the major parts of the processor.
 - main.vhd
