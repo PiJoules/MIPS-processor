@@ -10,7 +10,7 @@ use IEEE.std_logic_1164.all;
 use IEEE.numeric_std.all;
 
 entity shifter is
-	generic (n: natural:= 16; k: natural:= 2);
+	generic (n: natural:= 32; k: natural:= 2);
 	port (
 		x: in std_logic_vector(n-1 downto 0);
 		y: out std_logic_vector(n-1 downto 0)

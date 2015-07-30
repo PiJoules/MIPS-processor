@@ -21,8 +21,8 @@ architecture beh of main is
 
 	signal instr_address: std_logic_vector(31 downto 0); -- Address of the next instruction
 	signal instruction: std_logic_vector(31 downto 0); -- The actual instruction to run
-	signal read_data_1, read_data_2, write_data, extended_immediate, alu_in_2, alu_result, last_instr_address: std_logic_vector(31 downto 0);
-	signal immediate, shifted_immediate: std_logic_vector(15 downto 0);
+	signal read_data_1, read_data_2, write_data, extended_immediate, shifted_immediate, alu_in_2, alu_result, last_instr_address: std_logic_vector(31 downto 0);
+	signal immediate: std_logic_vector(15 downto 0);
 	signal opcode, funct: std_logic_vector(5 downto 0);
 	signal rs, rt, rd, shampt, write_reg: std_logic_vector(4 downto 0);
 	signal alu_control_fuct: std_logic_vector(3 downto 0);
@@ -95,7 +95,7 @@ architecture beh of main is
 		);
 	end component;
 	component shifter
-		generic (n: natural:= 16; k: natural:= 2);
+		generic (n: natural:= 32; k: natural:= 2);
 		port (
 			x: in std_logic_vector(n-1 downto 0);
 			y: out std_logic_vector(n-1 downto 0)
@@ -197,7 +197,7 @@ architecture beh of main is
 
 	-- The Shift Left 2 for the immediate
 	SHIFT1: shifter port map (
-		x => immediate,
+		x => extended_immediate,
 		y => shifted_immediate
 	);
 
