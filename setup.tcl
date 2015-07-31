@@ -1,4 +1,5 @@
 # Script for automatically doing the stuff I need to do every time I change something in the source
+# This script does not work on non *nix machines for obvious reasons: it would make things more productive.
 
 # Comple all the vhdl files
 vcom *.vhd		

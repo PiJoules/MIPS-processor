@@ -21,6 +21,6 @@ architecture beh of shifter is
 	signal temp: std_logic_vector(n2-1 downto 0);
 
 	begin
-	temp <= std_logic_vector(resize(unsigned(x), n2));
+	temp <= std_logic_vector(resize(unsigned(x), n2)); -- This is required if you want to increase or decease the number of bits
 	y <= std_logic_vector(shift_left(signed(temp), k));
 end beh;
