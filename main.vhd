@@ -19,14 +19,15 @@ architecture beh of main is
 	-- dummy vector
 	signal dummy_vector: std_logic_vector(31 downto 0):= "00000000000000000000000000000000";
 
-	signal instr_address: std_logic_vector(31 downto 0); -- Address of the next instruction
+	signal instr_address: std_logic_vector(31 downto 0); -- Address of the instruction to run
+	signal next_address: std_logic_vector(31 downto 0); -- Next address to be loaded into PC
 	signal instruction: std_logic_vector(31 downto 0); -- The actual instruction to run
-	signal read_data_1, read_data_2, write_data, extended_immediate, shifted_immediate, alu_in_2, alu_result, last_instr_address: std_logic_vector(31 downto 0);
+	signal read_data_1, read_data_2, write_data, extended_immediate, shifted_immediate, alu_in_2, alu_result, last_instr_address, incremented_address, add2_result, mux4_result: std_logic_vector(31 downto 0);
 	signal immediate: std_logic_vector(15 downto 0);
 	signal opcode, funct: std_logic_vector(5 downto 0);
 	signal rs, rt, rd, shampt, write_reg: std_logic_vector(4 downto 0);
 	signal alu_control_fuct: std_logic_vector(3 downto 0);
-	signal reg_dest,jump, branch, mem_read, mem_to_reg, mem_write, alu_src, reg_write, alu_zero: std_logic:= '0';
+	signal reg_dest,jump, branch, mem_read, mem_to_reg, mem_write, alu_src, reg_write, alu_zero, branch_and_alu_zero: std_logic:= '0'; -- vhdl does not allow me to port map " s => (branch and alu_zero) "
 	signal alu_op: std_logic_vector(1 downto 0);
 
 	 -- Enum for checking if the instructions have loaded
@@ -40,6 +41,7 @@ architecture beh of main is
 	component pc
 		port (
 			ck: in std_logic;
+			address_to_load: in std_logic_vector(31 downto 0);
 			current_address: out std_logic_vector(31 downto 0)
 		);
 	end component;
@@ -101,6 +103,12 @@ architecture beh of main is
 			y: out std_logic_vector(n-1 downto 0)
 		);
 	end component;
+	component adder 
+		port (
+			x,y: in std_logic_vector(31 downto 0);
+			z: out std_logic_vector(31 downto 0)
+		);		
+	end component;
 
 	begin
 
@@ -137,7 +145,7 @@ architecture beh of main is
 	funct <= instruction(5 downto 0);
 	immediate <= instruction(15 downto 0);
 
-	Prog_Count: pc port map (en, instr_address); 
+	Prog_Count: pc port map (en, next_address, instr_address); 
 
 	IM: instruction_memory port map (instr_address, instruction, last_instr_address);
 
@@ -199,6 +207,30 @@ architecture beh of main is
 	SHIFT1: shifter port map (
 		x => extended_immediate,
 		y => shifted_immediate
+	);
+
+	-- The +4 adder for the pc
+	ADD1: adder port map (
+		x => instr_address,
+		y => "00000000000000000000000000000100",
+		z => incremented_address
+	);
+
+	-- The mux between the +4 adder and the following adder
+	branch_and_alu_zero <= branch and alu_zero;
+	MUX4: mux generic map (32) port map (
+		x => incremented_address,
+		y => add2_result,
+		s => branch_and_alu_zero,
+		z => mux4_result
+	);
+	next_address <= mux4_result; -- temporary wiring
+
+	-- The adder between the PC and the sign-extended immediate
+	ADD2: adder port map (
+		x => incremented_address,
+		y => shifted_immediate,
+		z => add2_result
 	);
 
 end beh;
