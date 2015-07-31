@@ -18,5 +18,5 @@ end sign_extend;
 
 architecture beh of sign_extend is
 	begin
-	y <= std_logic_vector(resize(unsigned(x), y'length));
+	y <= std_logic_vector(resize(signed(x), y'length));
 end beh;

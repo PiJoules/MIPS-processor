@@ -22,12 +22,14 @@ architecture beh of main is
 	signal instr_address: std_logic_vector(31 downto 0); -- Address of the instruction to run
 	signal next_address: std_logic_vector(31 downto 0); -- Next address to be loaded into PC
 	signal instruction: std_logic_vector(31 downto 0); -- The actual instruction to run
-	signal read_data_1, read_data_2, write_data, extended_immediate, shifted_immediate, alu_in_2, alu_result, last_instr_address, incremented_address, add2_result, mux4_result: std_logic_vector(31 downto 0);
+	signal read_data_1, read_data_2, write_data, extended_immediate, shifted_immediate, alu_in_2, alu_result, last_instr_address, incremented_address, add2_result, mux4_result, concatenated_pc_and_jump_address: std_logic_vector(31 downto 0); -- vhdl does not allow me to port map " y => incremented_address(31 downto 28) & shifted_jump_address "
+	signal shifted_jump_address: std_logic_vector(27 downto 0);
+	signal jump_address: std_logic_vector(25 downto 0);
 	signal immediate: std_logic_vector(15 downto 0);
 	signal opcode, funct: std_logic_vector(5 downto 0);
 	signal rs, rt, rd, shampt, write_reg: std_logic_vector(4 downto 0);
 	signal alu_control_fuct: std_logic_vector(3 downto 0);
-	signal reg_dest,jump, branch, mem_read, mem_to_reg, mem_write, alu_src, reg_write, alu_zero, branch_and_alu_zero: std_logic:= '0'; -- vhdl does not allow me to port map " s => (branch and alu_zero) "
+	signal reg_dest, jump, branch, mem_read, mem_to_reg, mem_write, alu_src, reg_write, alu_zero, branch_and_alu_zero: std_logic:= '0'; -- vhdl does not allow me to port map " s => (branch and alu_zero) "
 	signal alu_op: std_logic_vector(1 downto 0);
 
 	 -- Enum for checking if the instructions have loaded
@@ -97,10 +99,10 @@ architecture beh of main is
 		);
 	end component;
 	component shifter
-		generic (n: natural:= 32; k: natural:= 2);
+		generic (n1: natural:= 32; n2: natural:= 32; k: natural:= 2);
 		port (
-			x: in std_logic_vector(n-1 downto 0);
-			y: out std_logic_vector(n-1 downto 0)
+			x: in std_logic_vector(n1-1 downto 0);
+			y: out std_logic_vector(n2-1 downto 0)
 		);
 	end component;
 	component adder 
@@ -144,6 +146,7 @@ architecture beh of main is
 	shampt <= instruction(10 downto 6);
 	funct <= instruction(5 downto 0);
 	immediate <= instruction(15 downto 0);
+	jump_address <= instruction(25 downto 0);
 
 	Prog_Count: pc port map (en, next_address, instr_address); 
 
@@ -224,13 +227,27 @@ architecture beh of main is
 		s => branch_and_alu_zero,
 		z => mux4_result
 	);
-	next_address <= mux4_result; -- temporary wiring
 
 	-- The adder between the PC and the sign-extended immediate
 	ADD2: adder port map (
 		x => incremented_address,
 		y => shifted_immediate,
 		z => add2_result
+	);
+
+	-- The Shift Left 2 for the jump instruction
+	SHIFT2: shifter generic map (n1 =>26, n2 => 28) port map (
+		x => jump_address,
+		y => shifted_jump_address
+	);
+
+	-- This mux chooses between the result of mux4 and the jump address
+	concatenated_pc_and_jump_address <= incremented_address(31 downto 28) & shifted_jump_address; -- I'm ashamed of myself
+	MUX5: mux generic map (32) port map (
+		x => mux4_result,
+		y => concatenated_pc_and_jump_address,
+		s => jump,
+		z => next_address
 	);
 
 end beh;
