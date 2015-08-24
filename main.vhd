@@ -17,12 +17,12 @@ end main;
 architecture beh of main is
 
 	-- dummy vector
-	signal dummy_vector: std_logic_vector(31 downto 0):= "00000000000000000000000000000000";
+	--signal dummy_vector: std_logic_vector(31 downto 0):= "00000000000000000000000000000000";
 
 	signal instr_address: std_logic_vector(31 downto 0); -- Address of the instruction to run
 	signal next_address: std_logic_vector(31 downto 0); -- Next address to be loaded into PC
 	signal instruction: std_logic_vector(31 downto 0); -- The actual instruction to run
-	signal read_data_1, read_data_2, write_data, extended_immediate, shifted_immediate, alu_in_2, alu_result, last_instr_address, incremented_address, add2_result, mux4_result, concatenated_pc_and_jump_address: std_logic_vector(31 downto 0); -- vhdl does not allow me to port map " y => incremented_address(31 downto 28) & shifted_jump_address "
+	signal read_data_1, read_data_2, write_data, extended_immediate, shifted_immediate, alu_in_2, alu_result, last_instr_address, incremented_address, add2_result, mux4_result, concatenated_pc_and_jump_address, mem_read_data: std_logic_vector(31 downto 0):= "00000000000000000000000000000000"; -- vhdl does not allow me to port map " y => incremented_address(31 downto 28) & shifted_jump_address "
 	signal shifted_jump_address: std_logic_vector(27 downto 0);
 	signal jump_address: std_logic_vector(25 downto 0);
 	signal immediate: std_logic_vector(15 downto 0);
@@ -110,6 +110,14 @@ architecture beh of main is
 			x,y: in std_logic_vector(31 downto 0);
 			z: out std_logic_vector(31 downto 0)
 		);		
+	end component;
+	
+	component memory is
+	port (
+		address, write_data: in STD_LOGIC_VECTOR (31 downto 0);
+		MemWrite, MemRead,ck: in STD_LOGIC;
+		read_data: out STD_LOGIC_VECTOR (31 downto 0)
+	);
 	end component;
 
 	begin
@@ -201,7 +209,7 @@ architecture beh of main is
 	-- This mux is going into the Register's Write Data; chooses between the alu_result and read_data from data memory
 	MUX3: mux generic map (32) port map (
 		x => alu_result, 
-		y => dummy_vector, 
+		y => mem_read_data, 
 		s => mem_to_reg,
 		z => write_data
 	);
@@ -248,6 +256,15 @@ architecture beh of main is
 		y => concatenated_pc_and_jump_address,
 		s => jump,
 		z => next_address
+	);
+	
+	MEM: memory port map (
+		address => alu_result,
+		write_data => read_data_2,
+		MemWrite => mem_write,
+		MemRead => mem_read,
+		ck => en,
+		read_data => mem_read_data
 	);
 
 end beh;
